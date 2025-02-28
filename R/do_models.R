@@ -314,3 +314,53 @@ names(gt_rast) <- "prob_greater_than_target"
 gt_rast[not_na_idx] <- raster_counts_prob_gt
 
 plot(gt_rast)
+
+# let's fit a frequentist GLM instead
+
+fit_freq <- glm(count ~ rainfall + temperature,
+                family = stats::poisson(),
+                data = gambiae_counts)
+fit_freq
+
+summary(fit_freq)
+predict(fit_freq,
+        type = "response",
+        se.fit = TRUE)
+
+summary(draws)$statistics
+
+
+
+library(INLA)
+
+# INLA does not allow use to use the prior we defined (log of a truncated
+# normal). Instead we need to define a lognormal prior on count_intercept, which
+# means there is a normal prior on its log (the intercept of the linear model
+# inla specifies). INLA expects a normal prior.
+
+# find a normal distribution that's similar to the prior we want
+
+# simulate from the prior we want, using greta
+sims <- calculate(log(count_intercept), nsim = 1e4)
+
+# compute the mean and sd (parameters of a normal approximation)
+mu <- mean(sims[[1]])
+sd <- sd(sims[[1]])
+
+# plot to compare them
+par(mfrow = c(2, 1))
+hist(sims[[1]], xlim = c(-6, 6), breaks = 100)
+hist(rnorm(10000, mu, sd), xlim = c(-6, 6), breaks = 100)
+
+fit_inla <- inla(count ~ rainfall + temperature,
+                 family = "Poisson",
+                 data = gambiae_counts,
+                 control.fixed = list(
+                   # intercept
+                   mean.intercept = mu,
+                   prec.intercept = sd,
+                   # slopes
+                   mean = list(rainfall = 0, temperature = 0),
+                   prec = list(rainfall = 1 / (0.5 ^ 2), temperature = 1 / (0.5 ^ 2))
+                 )
+)
