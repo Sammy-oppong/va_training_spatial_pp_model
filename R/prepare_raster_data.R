@@ -41,6 +41,17 @@ rainfall <- uga_annual_rainfall |>
   mask(mask = uga_vector)
 
 
+temperature_standardised <- scale(
+  x = temperature
+)
+
+rainfall_standardised <- scale(
+  x = rainfall
+)
+
+names(temperature_standardised) <- "temp_st"
+names(rainfall_standardised) <- "rf_st"
+
 writeRaster(
   x = temperature,
   filename = "data/temperature.tif",
@@ -50,5 +61,18 @@ writeRaster(
 writeRaster(
   x = rainfall,
   filename = "data/rainfall.tif",
+  overwrite = TRUE
+)
+
+
+writeRaster(
+  x = temperature_standardised,
+  filename = "data/temperature_standardised.tif",
+  overwrite = TRUE
+)
+
+writeRaster(
+  x = rainfall_standardised,
+  filename = "data/rainfall_standardised.tif",
   overwrite = TRUE
 )
