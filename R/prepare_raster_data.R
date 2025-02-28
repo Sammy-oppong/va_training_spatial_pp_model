@@ -1,7 +1,9 @@
+install.packages("malariaAtlas")
 
 library(tidyverse)
 library(terra)
 library(geodata)
+library(tidyterra)
 
 # get vector boundary
 uga_vector <- gadm(
