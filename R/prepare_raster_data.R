@@ -43,10 +43,12 @@ rainfall <- uga_annual_rainfall |>
 
 writeRaster(
   x = temperature,
-  filename = "data/temperature.tif"
+  filename = "data/temperature.tif",
+  overwrite = TRUE
 )
 
 writeRaster(
   x = rainfall,
-  filename = "data/rainfall.tif"
+  filename = "data/rainfall.tif",
+  overwrite = TRUE
 )
